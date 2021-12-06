@@ -14,6 +14,7 @@ func TestUnpack(t *testing.T) {
 		expected string
 	}{
 		{name: "symbolsRepeat", input: "a4bc2d5e", expected: "aaaabccddddde"},
+		{name: "symbolsRepeatRussian", input: "ё4йcъ5ц", expected: "ёёёёйcъъъъъц"},
 		{name: "noSymbolRepeat", input: "abccd", expected: "abccd"},
 		{name: "emptyString", input: "", expected: ""},
 		{name: "zeroDigit", input: "aaa0b", expected: "aab"},
