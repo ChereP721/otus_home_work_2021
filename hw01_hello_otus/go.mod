@@ -1,5 +1,3 @@
-module github.com/ChereP721/otus_home_work_2021/hw01_hello_otus
+module github.com/fixme_my_friend/hw01_hello_otus
 
 go 1.16
-
-require golang.org/x/example v0.0.0-20210811190340-787a929d5a0d
