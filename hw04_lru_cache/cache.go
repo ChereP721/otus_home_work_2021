@@ -1,6 +1,9 @@
 package hw04lrucache
 
-import "sync"
+import (
+	"errors"
+	"sync"
+)
 
 var lock sync.Mutex
 
@@ -76,10 +79,14 @@ type cacheItem struct {
 	value interface{}
 }
 
-func NewCache(capacity int) Cache {
+func NewCache(capacity int) (Cache, error) {
+	if capacity <= 0 {
+		return nil, errors.New("capacity cannot be less then zero")
+	}
+
 	return &lruCache{
 		capacity: capacity,
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
-	}
+	}, nil
 }

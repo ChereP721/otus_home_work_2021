@@ -48,4 +48,47 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
+
+	t.Run("front and back equal", func(t *testing.T) {
+		l := NewList()
+		l.PushFront(10)
+
+		require.Equal(t, 10, l.Front().Value)
+		require.Equal(t, 10, l.Back().Value)
+
+		l.Remove(l.Front())
+
+		require.Equal(t, l.Len(), 0)
+		require.Nil(t, l.Back())
+		require.Nil(t, l.Front())
+
+		l.PushBack(20)
+
+		require.Equal(t, 20, l.Front().Value)
+		require.Equal(t, 20, l.Back().Value)
+
+		l.PushFront(30)
+		l.Remove(l.Front())
+
+		require.Equal(t, 20, l.Front().Value)
+		require.Equal(t, 20, l.Back().Value)
+	})
+
+	t.Run("front and back pointers", func(t *testing.T) {
+		l := NewList()
+		l.PushFront(10)
+		l.PushBack(20)
+
+		require.Equal(t, l.Front().Next, l.Back())
+		require.Equal(t, l.Back().Prev, l.Front())
+	})
+
+	t.Run("cycle pointers", func(t *testing.T) {
+		l := NewList()
+		l.PushFront(10)
+		l.PushBack(20)
+
+		require.Equal(t, l.Front().Next.Prev, l.Front())
+		require.Equal(t, l.Back().Prev.Next, l.Back())
+	})
 }
