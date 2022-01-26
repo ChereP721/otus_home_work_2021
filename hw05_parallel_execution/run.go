@@ -6,6 +6,7 @@ import (
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
+
 var ErrCannotRunWorkers = errors.New("cannot run workers, negative or zero number of workers")
 
 type Task func() error

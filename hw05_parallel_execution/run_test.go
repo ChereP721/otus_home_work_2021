@@ -83,25 +83,21 @@ func TestRun(t *testing.T) {
 
 	t.Run("tasks with and without errors, result - error", func(t *testing.T) {
 		var runTasksCount int32
-		tasksWithoutErrorCount := 10
-		tasksWithErrorCount := 10
 
-		tasks, _ := createMixedTasks(tasksWithErrorCount, tasksWithoutErrorCount, tasksWithErrorCount, &runTasksCount)
+		tasks, _ := createMixedTasks(10, 10, 10, &runTasksCount)
 
 		workersCount := 3
 		maxErrorsCount := 15
 		err := Run(tasks, workersCount, maxErrorsCount)
 
 		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
-		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount+tasksWithoutErrorCount), "extra tasks were started")
+		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount+10), "extra tasks were started")
 	})
 
 	t.Run("tasks with and without errors, result - success", func(t *testing.T) {
 		var runTasksCount int32
-		tasksWithoutErrorCount := 50
-		tasksWithErrorCount := 10
 
-		tasks, sumTime := createMixedTasks(tasksWithErrorCount, tasksWithoutErrorCount, tasksWithErrorCount, &runTasksCount)
+		tasks, sumTime := createMixedTasks(10, 50, 10, &runTasksCount)
 
 		workersCount := 3
 		maxErrorsCount := 25
@@ -111,7 +107,7 @@ func TestRun(t *testing.T) {
 		elapsedTime := time.Since(start)
 		require.NoError(t, err)
 
-		require.Equal(t, runTasksCount, int32(2*tasksWithErrorCount+tasksWithoutErrorCount), "not all tasks were completed")
+		require.Equal(t, runTasksCount, int32(2*10+50), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
 }
@@ -138,19 +134,19 @@ func createTasks(tasksCount int, runTasksCount *int32, returnErr bool) ([]Task, 
 	return tasks, sumTime
 }
 
-func createMixedTasks(tasksWithErrorFirstCount, tasksWithoutErrorCount, tasksWithErrorLastCount int, runTasksCount *int32) ([]Task, time.Duration) {
+func createMixedTasks(withErrorCnt1, withoutErrorCnt, withErrorCnt2 int, runTasksCount *int32) ([]Task, time.Duration) {
 	var tasks []Task
 	var sumTime time.Duration
 
-	tasksTmp, sumTimeTmp := createTasks(tasksWithErrorFirstCount, runTasksCount, true)
+	tasksTmp, sumTimeTmp := createTasks(withErrorCnt1, runTasksCount, true)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
-	tasksTmp, sumTimeTmp = createTasks(tasksWithoutErrorCount, runTasksCount, false)
+	tasksTmp, sumTimeTmp = createTasks(withoutErrorCnt, runTasksCount, false)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
-	tasksTmp, sumTimeTmp = createTasks(tasksWithErrorLastCount, runTasksCount, true)
+	tasksTmp, sumTimeTmp = createTasks(withErrorCnt2, runTasksCount, true)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
