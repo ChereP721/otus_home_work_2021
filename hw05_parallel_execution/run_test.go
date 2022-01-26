@@ -19,7 +19,7 @@ func TestRun(t *testing.T) {
 		var runTasksCount int32
 		tasksCount := 50
 
-		tasks, _ := createTasks(tasksCount, &runTasksCount, true)
+		tasks, _ := createTasks(t, tasksCount, &runTasksCount, true)
 
 		workersCount := 10
 		maxErrorsCount := 23
@@ -33,7 +33,7 @@ func TestRun(t *testing.T) {
 		var runTasksCount int32
 		tasksCount := 50
 
-		tasks, sumTime := createTasks(tasksCount, &runTasksCount, false)
+		tasks, sumTime := createTasks(t, tasksCount, &runTasksCount, false)
 
 		workersCount := 5
 		maxErrorsCount := 1
@@ -67,7 +67,7 @@ func TestRun(t *testing.T) {
 		var runTasksCount int32
 		tasksCount := 10
 
-		tasks, sumTime := createTasks(tasksCount, &runTasksCount, false)
+		tasks, sumTime := createTasks(t, tasksCount, &runTasksCount, false)
 
 		workersCount := 25
 		maxErrorsCount := 1
@@ -84,7 +84,7 @@ func TestRun(t *testing.T) {
 	t.Run("tasks with and without errors, result - error", func(t *testing.T) {
 		var runTasksCount int32
 
-		tasks, _ := createMixedTasks(10, 10, 10, &runTasksCount)
+		tasks, _ := createMixedTasks(t, 10, 10, 10, &runTasksCount)
 
 		workersCount := 3
 		maxErrorsCount := 15
@@ -97,7 +97,7 @@ func TestRun(t *testing.T) {
 	t.Run("tasks with and without errors, result - success", func(t *testing.T) {
 		var runTasksCount int32
 
-		tasks, sumTime := createMixedTasks(10, 50, 10, &runTasksCount)
+		tasks, sumTime := createMixedTasks(t, 10, 50, 10, &runTasksCount)
 
 		workersCount := 3
 		maxErrorsCount := 25
@@ -112,17 +112,17 @@ func TestRun(t *testing.T) {
 	})
 }
 
-func createTasks(tasksCount int, runTasksCount *int32, returnErr bool) ([]Task, time.Duration) {
+func createTasks(t *testing.T, tasksCount int, runTasksCount *int32, returnErr bool) ([]Task, time.Duration) {
 	tasks := make([]Task, 0, tasksCount)
 
 	var sumTime time.Duration
 
 	for i := 0; i < tasksCount; i++ {
-		taskSleep := time.Millisecond * time.Duration(rand.Intn(100))
+		taskSleep := time.Millisecond * (time.Duration(rand.Intn(100)) + 1)
 		sumTime += taskSleep
 		err := fmt.Errorf("error from task %d", i)
 		tasks = append(tasks, func() error {
-			time.Sleep(taskSleep)
+			require.Eventually(t, func() bool { return true }, 2*taskSleep, taskSleep)
 			atomic.AddInt32(runTasksCount, 1)
 			if returnErr {
 				return err
@@ -134,19 +134,19 @@ func createTasks(tasksCount int, runTasksCount *int32, returnErr bool) ([]Task, 
 	return tasks, sumTime
 }
 
-func createMixedTasks(withErrorCnt1, withoutErrorCnt, withErrorCnt2 int, runTasksCount *int32) ([]Task, time.Duration) {
+func createMixedTasks(t *testing.T, withErrorCnt1, withoutErrorCnt, withErrorCnt2 int, runTasksCount *int32) ([]Task, time.Duration) {
 	var tasks []Task
 	var sumTime time.Duration
 
-	tasksTmp, sumTimeTmp := createTasks(withErrorCnt1, runTasksCount, true)
+	tasksTmp, sumTimeTmp := createTasks(t, withErrorCnt1, runTasksCount, true)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
-	tasksTmp, sumTimeTmp = createTasks(withoutErrorCnt, runTasksCount, false)
+	tasksTmp, sumTimeTmp = createTasks(t, withoutErrorCnt, runTasksCount, false)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
-	tasksTmp, sumTimeTmp = createTasks(withErrorCnt2, runTasksCount, true)
+	tasksTmp, sumTimeTmp = createTasks(t, withErrorCnt2, runTasksCount, true)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
