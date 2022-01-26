@@ -53,15 +53,11 @@ func Run(tasks []Task, n, m int) error {
 	}
 
 	sg.Wait()
-	/*
-		тест где м больше н и наоборот
-		где кол-во ошибок меньше допустимого числа
-			тест без слипа - через библиотеки работы со временем из лекции по тестам 2
-	*/
 
 	if ec.isFailed() {
 		return ErrErrorsLimitExceeded
 	}
+
 	return nil
 }
 
