@@ -119,7 +119,7 @@ func createTasks(t *testing.T, tasksCount int, runTasksCount *int32, returnErr b
 	var sumTime time.Duration
 
 	for i := 0; i < tasksCount; i++ {
-		taskSleep := time.Millisecond * (time.Duration(rand.Intn(100)) + 1)
+		taskSleep := time.Millisecond*time.Duration(rand.Intn(100)) + time.Millisecond
 		sumTime += taskSleep
 		err := fmt.Errorf("error from task %d", i)
 		tasks = append(tasks, func() error {
