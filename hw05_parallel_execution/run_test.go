@@ -84,7 +84,7 @@ func TestRun(t *testing.T) {
 	t.Run("tasks with and without errors, result - error", func(t *testing.T) {
 		var runTasksCount int32
 
-		tasks, _ := createMixedTasks(t, 10, 10, 10, &runTasksCount)
+		tasks, _ := createMixedTasks(t, 10, 10, &runTasksCount)
 
 		workersCount := 3
 		maxErrorsCount := 15
@@ -97,7 +97,7 @@ func TestRun(t *testing.T) {
 	t.Run("tasks with and without errors, result - success", func(t *testing.T) {
 		var runTasksCount int32
 
-		tasks, sumTime := createMixedTasks(t, 10, 50, 10, &runTasksCount)
+		tasks, sumTime := createMixedTasks(t, 10, 50, &runTasksCount)
 
 		workersCount := 3
 		maxErrorsCount := 25
@@ -113,6 +113,7 @@ func TestRun(t *testing.T) {
 }
 
 func createTasks(t *testing.T, tasksCount int, runTasksCount *int32, returnErr bool) ([]Task, time.Duration) {
+	t.Helper()
 	tasks := make([]Task, 0, tasksCount)
 
 	var sumTime time.Duration
@@ -134,11 +135,13 @@ func createTasks(t *testing.T, tasksCount int, runTasksCount *int32, returnErr b
 	return tasks, sumTime
 }
 
-func createMixedTasks(t *testing.T, withErrorCnt1, withoutErrorCnt, withErrorCnt2 int, runTasksCount *int32) ([]Task, time.Duration) {
+func createMixedTasks(t *testing.T, withErrorCnt, withoutErrorCnt int, runTasksCount *int32) ([]Task, time.Duration) {
+	t.Helper()
+
 	var tasks []Task
 	var sumTime time.Duration
 
-	tasksTmp, sumTimeTmp := createTasks(t, withErrorCnt1, runTasksCount, true)
+	tasksTmp, sumTimeTmp := createTasks(t, withErrorCnt, runTasksCount, true)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
@@ -146,7 +149,7 @@ func createMixedTasks(t *testing.T, withErrorCnt1, withoutErrorCnt, withErrorCnt
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
-	tasksTmp, sumTimeTmp = createTasks(t, withErrorCnt2, runTasksCount, true)
+	tasksTmp, sumTimeTmp = createTasks(t, withErrorCnt, runTasksCount, true)
 	tasks = append(tasks, tasksTmp...)
 	sumTime += sumTimeTmp
 
